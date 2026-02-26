@@ -130,7 +130,10 @@ inline void setPixel(int x, int y, uint32_t color) {
 void line(int x1, int y1, int x2, int y2, uint16_t color);
 void triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint16_t colorFill, uint16_t colorLine);
 void fillScreen(uint16_t color);
+
+#ifdef PC
 inline void LCD_ClearScreen(){ fillScreen((uint16_t)0xFFFF);}
+#endif
 
 typedef uint32_t Keys1;
 typedef uint32_t Keys2;
