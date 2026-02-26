@@ -10,39 +10,24 @@ Flappy Bird ported for the Classpad II fx-CP400.
 
 ## Installation
 
-Firstly, clone the project
+1. Download the latest release (artifact) from the Actions tab or Releases page.
+2. Extract the bundle.
+3. Copy the `CPFlappyBird.hh3` file to your calculator's storage (e.g., via USB mass storage).
+4. Copy the `usr` folder to the root of your calculator's storage, merging it with any existing `usr` folder. This installs the necessary fonts and textures.
+5. Launch `CPFlappyBird.hh3` on your calculator.
 
-```bash
-git clone https://github.com/s3ansh33p/CPFlappyBird.git
-cd CPFlappyBird
-```
-Make sure that you have python3 installed, then install the "Pillow" package
-```bash
-python3 -m pip install --upgrade pip
-python3 -m pip install --upgrade Pillow
-```
-To convert the textures for the classpad, run the following python scripts.
-```bash
-python3 ./convert_textures.py
-python3 ./convert_fonts.py
-```
-To compile the program, make sure that you have the [Hollyhock-2 SDK](https://github.com/SnailMath/hollyhock-2) istalled, with newlib.
+## Building from Source
 
-Once the SDK is installed, compile the program.
-```bash
-make hhk
-```
-If you want to recompile you can run the following command.
-```bash
-make clean && make hhk
-```
+To build the project yourself:
 
-Now that the program is compiled, you will need to copy some files the classpad.
-
-First, copy the fonts from `./res/CPFlappyBird/fnt` to `/usr/fonts/` on the classpad.
-
-If there are existing files for `5x6` and `7x8` on the classpad, you will not need to copy those.
-
-Secondly, copy the textures from `./res/CPFlappyBird/` to `/usr/textures/CPFlappyBird` on the classpad (don't include `fnt` directory).
-
-Finally, copy the `./CPFlappyBird.hhk` to `/bin/CPFlappyBird.hhk` on the classpad.
+1. Ensure you have the [Hollyhock-3 SDK](https://github.com/ClasspadDev/hollyhock-3) environment set up (e.g., via Docker or devcontainer).
+2. Install Python 3 and Pillow: `pip install Pillow`.
+3. Generate resources:
+   ```bash
+   python3 convert_textures.py
+   python3 convert_fonts.py
+   ```
+4. Compile the project:
+   ```bash
+   make
+   ```
