@@ -12,6 +12,9 @@ extern void main2(); //in file main.cpp
 #else
     uint16_t *vram = nullptr;
 	uint8_t debugprintline = 0;
+	// Define width and height globally for calculator build
+	int width;
+	int height;
 #endif
 
 
