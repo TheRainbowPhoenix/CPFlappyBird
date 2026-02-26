@@ -10,7 +10,7 @@ extern void main2(); //in file main.cpp
 	int width;
 	int height;
 #else
-	//uint16_t *vram; //this got moved to sdk/calc/calc.hpp
+    uint16_t *vram = nullptr;
 	uint8_t debugprintline = 0;
 #endif
 
@@ -19,7 +19,7 @@ extern "C"
 #ifdef PC
 int  main(){
 #else
-void main(){
+int main(){
 #endif
 	//Initialisation
 	#ifdef PC
@@ -33,8 +33,8 @@ void main(){
 		texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_TARGET,320,528);
 	#else
 		vram = LCD_GetVRAMAddress();
-		LCD_GetSize(&width, &height);
-		LCD_VRAMBackup(); //Stores the VRAM content
+		LCD_GetSize((unsigned int*)&width, (unsigned int*)&height);
+		// LCD_VRAMBackup(); // Removed
 	#endif
 
 	//The actual program
@@ -45,9 +45,11 @@ void main(){
 		SDL_DestroyWindow(win);
 		SDL_Quit();
 	#else
-		LCD_VRAMRestore(); //Restores the VRAM content
+		// LCD_VRAMRestore(); // Removed
 		LCD_Refresh();
+        return 0;
 	#endif
+    return 0;
 }
 
 //println is printf for up to 4 arguments

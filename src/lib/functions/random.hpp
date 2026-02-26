@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 class RandomGenerator {
     public:
         void SetSeed(uint32_t seed);
