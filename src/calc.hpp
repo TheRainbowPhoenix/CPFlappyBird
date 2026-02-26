@@ -126,21 +126,27 @@ inline void setPixel(int x, int y, uint32_t color) {
     }
 }
 
+// Declarations of drawing functions provided in calc.cpp
+void line(int x1, int y1, int x2, int y2, uint16_t color);
+void triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint16_t colorFill, uint16_t colorLine);
+void fillScreen(uint16_t color);
+inline void LCD_ClearScreen(){ fillScreen((uint16_t)0xFFFF);}
+
 typedef uint32_t Keys1;
 typedef uint32_t Keys2;
 
 // Mapping old keys to new SDK keycodes
 static const uint32_t KEY_SHIFT = KEYCODE_SHIFT;
-static const uint32_t KEY_CLEAR = KEYCODE_CLEAR;
+static const uint32_t KEY_CLEAR = KEYCODE_POWER_CLEAR;
 static const uint32_t KEY_BACKSPACE = KEYCODE_BACKSPACE;
 static const uint32_t KEY_LEFT = KEYCODE_LEFT;
 static const uint32_t KEY_RIGHT = KEYCODE_RIGHT;
 static const uint32_t KEY_Z = KEYCODE_Z;
-static const uint32_t KEY_POWER = KEYCODE_POWER_CLEAR; // Best guess for "Power/Clear" functionality
+static const uint32_t KEY_POWER = KEYCODE_POWER;
 static const uint32_t KEY_DIVIDE = KEYCODE_DIVIDE;
-static const uint32_t KEY_MULTIPLY = KEYCODE_MULTIPLY;
-static const uint32_t KEY_SUBTRACT = KEYCODE_SUBTRACT;
-static const uint32_t KEY_ADD = KEYCODE_ADD;
+static const uint32_t KEY_MULTIPLY = KEYCODE_TIMES;
+static const uint32_t KEY_SUBTRACT = KEYCODE_MINUS;
+static const uint32_t KEY_ADD = KEYCODE_PLUS;
 static const uint32_t KEY_EXE = KEYCODE_EXE;
 static const uint32_t KEY_EXP = KEYCODE_EXP;
 static const uint32_t KEY_3 = KEYCODE_3;
@@ -152,10 +158,10 @@ static const uint32_t KEY_DOWN = KEYCODE_DOWN;
 static const uint32_t KEY_EQUALS = KEYCODE_EQUALS;
 static const uint32_t KEY_X = KEYCODE_X;
 static const uint32_t KEY_Y = KEYCODE_Y;
-static const uint32_t KEY_LEFT_BRACKET = KEYCODE_LPAREN; // Guessing
-static const uint32_t KEY_RIGHT_BRACKET = KEYCODE_RPAREN; // Guessing
+static const uint32_t KEY_LEFT_BRACKET = KEYCODE_OPEN_PARENTHESIS;
+static const uint32_t KEY_RIGHT_BRACKET = KEYCODE_CLOSE_PARENTHESIS;
 static const uint32_t KEY_COMMA = KEYCODE_COMMA;
-static const uint32_t KEY_NEGATIVE = KEYCODE_MINUS; // Guessing
+static const uint32_t KEY_NEGATIVE = KEYCODE_NEGATIVE;
 static const uint32_t KEY_0 = KEYCODE_0;
 static const uint32_t KEY_DOT = KEYCODE_DOT;
 static const uint32_t KEY_1 = KEYCODE_1;

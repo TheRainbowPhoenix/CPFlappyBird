@@ -43,12 +43,15 @@ uint32_t ev_old2 = 0;
 Keys1 listeners[16] = {KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR, KEY_CLEAR};
 void (*func_ptr[16])() = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 bool hold_keys[16] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+// Track if the listener's key is currently pressed
+bool listener_pressed[16] = {false};
 uint8_t listener_count = 0;
 
 void addListener(Keys1 key, void (*func)(), bool hold = false) {
    listeners[listener_count] = key;
    func_ptr[listener_count] = func;
    hold_keys[listener_count] = hold;
+   listener_pressed[listener_count] = false;
    listener_count++;
 }
 
@@ -60,6 +63,7 @@ void removeListener(Keys1 key) {
          for (uint8_t j = i; j < listener_count; j++) {
             listeners[j] = listeners[j + 1];
             func_ptr[j] = func_ptr[j + 1];
+            listener_pressed[j] = listener_pressed[j + 1];
          }
       }
    }
@@ -70,12 +74,14 @@ void removeListener(Keys1 key) {
 Keys2 listeners2[18] = {KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD, KEY_KEYBOARD};
 void (*func_ptr2[18])() = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 bool hold_keys2[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+bool listener_pressed2[18] = {false};
 uint8_t listener_count2 = 0;
 
 void addListener2(Keys2 key, void (*func)(), bool hold = false) {
    listeners2[listener_count2] = key;
    func_ptr2[listener_count2] = func;
    hold_keys2[listener_count2] = hold;
+   listener_pressed2[listener_count2] = false;
    listener_count2++;
 }
 
@@ -87,6 +93,7 @@ void removeListener2(Keys2 key) {
          for (uint8_t j = i; j < listener_count2; j++) {
             listeners2[j] = listeners2[j + 1];
             func_ptr2[j] = func_ptr2[j + 1];
+            listener_pressed2[j] = listener_pressed2[j + 1];
          }
       }
    }
@@ -98,8 +105,9 @@ void removeAllListeners() {
 }
 
 #ifndef PC
-static bool keyState[512];
-static bool oldKeyState[512];
+// We track per-listener state instead of global key state to handle sparse keycodes
+static bool old_listener_pressed[16];
+static bool old_listener_pressed2[18];
 #endif
 
 void checkEvents() {
@@ -137,20 +145,32 @@ void checkEvents() {
    }
 #else
    // Calculator V3 implementation
-   memcpy(oldKeyState, keyState, sizeof(keyState));
+   // Backup old states
+   memcpy(old_listener_pressed, listener_pressed, sizeof(listener_pressed));
+   memcpy(old_listener_pressed2, listener_pressed2, sizeof(listener_pressed2));
 
    struct Input_Event event;
+   // Use 0 for non-blocking polling
    while(1) {
-       GetInput(&event, 0xFFFFFFFF, 0x10);
+       GetInput(&event, 0, 0x10);
        if (event.type == EVENT_NONE) break;
 
        if (event.type == EVENT_KEY) {
            uint32_t k = event.data.key.keyCode;
-           if (k < 512) {
-               if (event.data.key.direction == KEY_PRESSED) {
-                   keyState[k] = true;
-               } else if (event.data.key.direction == KEY_RELEASED) {
-                   keyState[k] = false;
+           bool is_pressed = (event.data.key.direction == KEY_PRESSED || event.data.key.direction == KEY_HELD);
+           bool is_released = (event.data.key.direction == KEY_RELEASED);
+
+           // Update listener states directly
+           if (is_pressed || is_released) {
+               for (uint8_t i = 0; i < listener_count; i++) {
+                   if (listeners[i] == k) {
+                       listener_pressed[i] = is_pressed;
+                   }
+               }
+               for (uint8_t i = 0; i < listener_count2; i++) {
+                   if (listeners2[i] == k) {
+                       listener_pressed2[i] = is_pressed;
+                   }
                }
            }
        }
@@ -158,9 +178,9 @@ void checkEvents() {
 
    bool key1_pressed = false;
    for (uint8_t i = 0; i < listener_count; i++) {
-      uint32_t k = listeners[i];
-      if (k < 512 && keyState[k]) {
-          if (!oldKeyState[k] || hold_keys[i]) {
+      if (listener_pressed[i]) {
+          // Trigger if it wasn't pressed before (edge) or if hold is enabled
+          if (!old_listener_pressed[i] || hold_keys[i]) {
              (*func_ptr[i])();
              key1_pressed = true;
              break;
@@ -170,9 +190,8 @@ void checkEvents() {
 
    if (!key1_pressed) {
       for (uint8_t i = 0; i < listener_count2; i++) {
-         uint32_t k = listeners2[i];
-         if (k < 512 && keyState[k]) {
-             if (!oldKeyState[k] || hold_keys2[i]) {
+         if (listener_pressed2[i]) {
+             if (!old_listener_pressed2[i] || hold_keys2[i]) {
                  (*func_ptr2[i])();
                  break;
              }
