@@ -55,3 +55,10 @@ jobs:
       with:
         name: CPFlappyBird-Bundle
         path: bundle/**
+
+    - uses: actions/upload-artifact@v6
+      with:
+        name: CPFlappyBird-Debug
+        path: |
+          dist/*.elf
+          dist/*.map
